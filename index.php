@@ -1,26 +1,86 @@
 <?php
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 session_start();
-include 'db.php'; // Include the database connection
+include 'functions/db.php'; // Include the database connection
 
 // Initialize variables for error messages
-$loginError = '';
+$loginErrorEmail = '';
+$loginErrorPhone = '';
 $registerError = '';
 
-// Handle login form submission
-if (isset($_POST['login'])) {
+// Handle email login form submission
+if (isset($_POST['login_email'])) {
     $email = mysqli_real_escape_string($conn, $_POST['email']);
     $password = mysqli_real_escape_string($conn, $_POST['password']);
 
-    $query = "SELECT * FROM users WHERE email='$email'";
-    $result = mysqli_query($conn, $query);
-    $user = mysqli_fetch_assoc($result);
+    // Using prepared statement to prevent SQL injection
+    $stmt = $conn->prepare("SELECT * FROM users WHERE email = ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $email);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
 
-    if ($user && password_verify($password, $user['password'])) {
-        $_SESSION['user_id'] = $user['id'];
-        $_SESSION['user_email'] = $user['email'];
-        header('Location: index.php'); // Redirect to the main page after login
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_email'] = $user['email'];
+
+            // Update last login time
+            $user_id = $user['id'];
+            $updateStmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+            if ($updateStmt) {
+                $updateStmt->bind_param("i", $user_id);
+                $updateStmt->execute();
+                $updateStmt->close();
+            }
+
+            header('Location: index.php'); // Redirect to the main page after login
+            exit(); // Ensure no further code execution
+        } else {
+            $loginErrorEmail = 'Invalid email or password.';
+        }
+        $stmt->close();
     } else {
-        $loginError = 'Invalid email or password.';
+        $loginErrorEmail = 'Error preparing statement: ' . $conn->error;
+    }
+}
+
+// Handle phone login form submission
+if (isset($_POST['login_phone'])) {
+    $phone = mysqli_real_escape_string($conn, $_POST['phone']);
+    $password = mysqli_real_escape_string($conn, $_POST['password']);
+
+    // Using prepared statement to prevent SQL injection
+    $stmt = $conn->prepare("SELECT * FROM users WHERE phone = ?");
+    if ($stmt) {
+        $stmt->bind_param("s", $phone);
+        $stmt->execute();
+        $result = $stmt->get_result();
+        $user = $result->fetch_assoc();
+
+        if ($user && password_verify($password, $user['password'])) {
+            $_SESSION['user_id'] = $user['id'];
+            $_SESSION['user_email'] = $user['email'];
+
+            // Update last login time
+            $user_id = $user['id'];
+            $updateStmt = $conn->prepare("UPDATE users SET last_login = NOW() WHERE id = ?");
+            if ($updateStmt) {
+                $updateStmt->bind_param("i", $user_id);
+                $updateStmt->execute();
+                $updateStmt->close();
+            }
+
+            header('Location: index.php'); // Redirect to the main page after login
+            exit(); // Ensure no further code execution
+        } else {
+            $loginErrorPhone = 'Invalid phone or password.';
+        }
+        $stmt->close();
+    } else {
+        $loginErrorPhone = 'Error preparing statement: ' . $conn->error;
     }
 }
 
@@ -33,14 +93,23 @@ if (isset($_POST['register'])) {
 
     if ($password === $confirmPassword) {
         $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
-        $query = "INSERT INTO users (email, phone, password) VALUES ('$email', '$phone', '$hashedPassword')";
 
-        if (mysqli_query($conn, $query)) {
-            $_SESSION['user_id'] = mysqli_insert_id($conn);
-            $_SESSION['user_email'] = $email;
-            header('Location: index.php'); // Redirect to the main page after registration
+        // Using prepared statement for secure insertion
+        $stmt = $conn->prepare("INSERT INTO users (email, phone, password, created_at) VALUES (?, ?, ?, NOW())");
+        if ($stmt) {
+            $stmt->bind_param("sss", $email, $phone, $hashedPassword);
+
+            if ($stmt->execute()) {
+                $_SESSION['user_id'] = $conn->insert_id;
+                $_SESSION['user_email'] = $email;
+                header('Location: index.php'); // Redirect to the main page after registration
+                exit(); // Ensure no further code execution
+            } else {
+                $registerError = 'Error in registration: ' . $stmt->error;
+            }
+            $stmt->close();
         } else {
-            $registerError = 'Error in registration. Try again.';
+            $registerError = 'Error preparing statement: ' . $conn->error;
         }
     } else {
         $registerError = 'Passwords do not match.';
@@ -56,6 +125,31 @@ if (isset($_POST['register'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Car Parts Store</title>
     <link rel="stylesheet" href="styles.css">
+    <script>
+        // Ensure the modal stays open on error and opens the correct tab
+        window.onload = function() {
+            var loginErrorEmail = <?php echo json_encode(!empty($loginErrorEmail)); ?>;
+            var loginErrorPhone = <?php echo json_encode(!empty($loginErrorPhone)); ?>;
+
+            if (loginErrorEmail) {
+                document.getElementById('loginModal').style.display = 'block';
+                showContent('email'); // Open email tab if there's an error in email login
+            } else if (loginErrorPhone) {
+                document.getElementById('loginModal').style.display = 'block';
+                showContent('phone'); // Open phone tab if there's an error in phone login
+            }
+        };
+
+        function showContent(type) {
+            // Remove active class from all tabs and contents
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
+
+            // Add active class to the selected tab and its content
+            document.getElementById(`tab-${type}`).classList.add('active');
+            document.getElementById(`content-${type}`).classList.add('active');
+        }
+    </script>
 </head>
 
 <body>
@@ -73,7 +167,7 @@ if (isset($_POST['register'])) {
                 <a href="#" class="nav-links-a">Order Conditions</a>
                 <a href="#" class="nav-links-a">Delivery</a>
                 <?php if (isset($_SESSION['user_id'])) : ?>
-                    <a href="logout.php" class="nav-links-a">Logout</a>
+                    <a href="functions/logout.php" class="nav-links-a">Logout</a>
                 <?php else : ?>
                     <a href="#" id="loginBtn" class="nav-links-a" style="background-color: white;">Login</a>
                 <?php endif; ?>
@@ -183,7 +277,7 @@ if (isset($_POST['register'])) {
         <!-- Modal content -->
         <div class="modal-content">
             <!-- Close button -->
-            <span class="close">&times;</span>
+            <span class="close" onclick="document.getElementById('loginModal').style.display='none'">&times;</span>
             <h2>Login</h2>
 
             <div class="tab-container">
@@ -196,7 +290,11 @@ if (isset($_POST['register'])) {
                 <form method="POST" action="index.php">
                     <input type="email" class="input-field" placeholder="Enter your email" name="email" required>
                     <input type="password" class="input-field" placeholder="Enter your password" name="password" required>
-                    <button type="submit" class="login-btn input-field" name="login">Login</button>
+                    <?php if (!empty($loginErrorEmail)) : ?>
+                        <p style="color: red;text-align: center"><?= $loginErrorEmail; ?></p>
+                    <?php endif; ?>
+                    <button type="submit" class="login-btn input-field" name="login_email">Login</button>
+
                     <p style="color: #0054ad; text-align: center; margin-top: 5%;">No account? <u><span id="reg-open" onclick="showRegistration()">You can register here</span></u></p>
                 </form>
             </div>
@@ -206,7 +304,11 @@ if (isset($_POST['register'])) {
                 <form method="POST" action="index.php">
                     <input type="text" class="input-field" placeholder="Enter your phone number" name="phone" required>
                     <input type="password" class="input-field" placeholder="Enter your password" name="password" required>
-                    <button type="submit" class="login-btn input-field" name="login">Login</button>
+                    <?php if (!empty($loginErrorPhone)) : ?>
+                        <p style="color: red; text-align: center"><?= $loginErrorPhone; ?></p>
+                    <?php endif; ?>
+                    <button type="submit" class="login-btn input-field" name="login_phone">Login</button>
+
                     <p style="color: #0054ad; text-align: center; margin-top: 5%;">No account? <u><span id="reg-open" onclick="showRegistration()">You can register here</span></u></p>
                 </form>
             </div>
