@@ -26,11 +26,11 @@ if (!isset($_SESSION['user_id'])) {
     <?php include 'header.php'; ?>
 
     <main>
-
         <h1>Thank you for your order!</h1>
         <p>Your order has been placed successfully.</p>
         <a href="order_history.php">View Order History</a>
     </main>
+
 </body>
 
 </html>

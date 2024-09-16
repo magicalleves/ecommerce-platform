@@ -1,4 +1,43 @@
-<?php
+            <div class="products-grid">
+                <?php while ($product = mysqli_fetch_assoc($productsResult)) : ?>
+                    <div class="product-card">
+                        <h2><?php echo htmlspecialchars($product['name']); ?></h2>
+                        <p><?php echo htmlspecialchars($product['description']); ?></p>
+                        <!-- Flex container for price and button -->
+                        <div class="price-button-container">
+                            <p class="price">Price: $<?php echo htmlspecialchars($product['price']); ?></p>
+                            <?php if (isset($_SESSION['user_id'])) : ?>
+                                <form class="add-to-cart-form" data-product-id="<?php echo $product['id']; ?>">
+                                    <input type="number" name="quantity" value="1" min="1" max="<?php echo $product['stock']; ?>">
+                                    <button type="button" class="add-to-cart-btn">Add to Cart</button>
+                                </form>
+                            <?php else : ?>
+                                <p><a href="#" id="loginBtn" style="color: red;">Login to add to cart</a></p>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                <?php endwhile; ?>
+            </div>
+
+
+
+                     // // Add the quantity selector here
+                // echo "<div class='quantity-selector'>";
+                // echo "<button class='quantity-btn minus' data-product-id='" . $part['id'] . "'>-</button>";
+                // echo "<span class='quantity' id='quantity-" . $part['id'] . "'>0</span>";
+                // echo "<button class='quantity-btn plus' data-product-id='" . $part['id'] . "'>+</button>";
+                // echo "</div>";
+
+
+
+
+
+
+
+
+
+
+                <?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
@@ -135,58 +174,6 @@ if (isset($_SESSION['user_id'])) {
 }
 
 
-
-
-if (isset($_SESSION['user_id'])) {
-    $user_id = $_SESSION['user_id'];
-
-    if (isset($_POST['increment'])) {
-        $product_id = intval($_POST['product_id']);
-
-        // Check if the product exists in the carpartsdatabase table
-        $checkProductQuery = $conn->prepare("SELECT id FROM carpartsdatabase WHERE id = ?");
-        $checkProductQuery->bind_param("i", $product_id);
-        $checkProductQuery->execute();
-        $productResult = $checkProductQuery->get_result();
-
-        if ($productResult->num_rows > 0) {
-            // If the product exists, increment the quantity
-            $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity, added_at) VALUES (?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE quantity = quantity + 1");
-            $stmt->bind_param("ii", $user_id, $product_id);
-            $stmt->execute();
-            $stmt->close();
-
-            echo "<script>showPopup('Added 1 product to cart');</script>";
-        } else {
-            echo "<p style='color: red; text-align: center;'>Product does not exist.</p>";
-        }
-        $checkProductQuery->close();
-    }
-
-    if (isset($_POST['decrement'])) {
-        $product_id = intval($_POST['product_id']);
-
-        // Check if the product exists in the carpartsdatabase table
-        $checkProductQuery = $conn->prepare("SELECT id FROM carpartsdatabase WHERE id = ?");
-        $checkProductQuery->bind_param("i", $product_id);
-        $checkProductQuery->execute();
-        $productResult = $checkProductQuery->get_result();
-
-        if ($productResult->num_rows > 0) {
-            // If the product exists, decrement the quantity
-            $stmt = $conn->prepare("UPDATE cart SET quantity = quantity - 1 WHERE user_id = ? AND product_id = ? AND quantity > 0");
-            $stmt->bind_param("ii", $user_id, $product_id);
-            $stmt->execute();
-            $stmt->close();
-
-            echo "<script>showPopup('Removed 1 product from cart');</script>";
-        } else {
-            echo "<p style='color: red; text-align: center;'>Product does not exist.</p>";
-        }
-        $checkProductQuery->close();
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -260,12 +247,10 @@ if (isset($_SESSION['user_id'])) {
         </div>
         <a href="functions/cart.php" class="cart" style="display: flex; align-items: center; text-decoration: none; margin-left: 1vw">
             <i class="fa-solid fa-cart-shopping" style="font-size: 20px;color: #bababa; margin-left: 10px;"></i>
-            <p style="margin-left: 10px; color: #bababa">Cart
-                <?php if ($cart_count > 0) : ?>
-                    <?php echo $cart_count; ?>
-                <?php endif; ?>
-            </p>
-
+            <p style="margin-left: 10px; color: #bababa">Cart</p>
+            <?php if ($cart_count > 0) : ?>
+                <p style="padding-left: 10px; font-size: 18px;color: #bababa">Cart (<?php echo $cart_count; ?>)</p>
+            <?php endif; ?>
         </a>
     </div>
 
@@ -274,55 +259,88 @@ if (isset($_SESSION['user_id'])) {
     <hr style="border-color: #f1f1f1;border: 1px solid #f1f1f1">
 
     <main>
+        <?php
+        // if (isset($_POST['search_button'])) {
+        //     $partNumber = mysqli_real_escape_string($conn, $_POST['search_part_number']);
+
+        //     $searchQuery = $conn->prepare("SELECT * FROM carpartsdatabase WHERE Number = ?");
+        //     $searchQuery->bind_param("s", $partNumber);
+        //     $searchQuery->execute();
+        //     $searchResult = $searchQuery->get_result();
+
+        //     if ($searchResult->num_rows > 0) {
+        //         $part = $searchResult->fetch_assoc();
+        //         echo "<div class='part-details'>";
+
+        //         // Placeholder image; replace src with the path to the actual image if available
+        //         echo "<img src='images/no-photo.png' alt='Part Image'>";
+
+        //         echo "<div class='part-info'>";
+        //         echo "<h2>" . htmlspecialchars($part['Description']) . " " . htmlspecialchars($part['Number']) . "</h2>";
+        //         echo "<p><strong>Model:</strong> " . htmlspecialchars($part['Model']) . "</p>";
+        //         echo "<p><strong>Number:</strong> " . htmlspecialchars($part['Number']) . "</p>";
+        //         echo "<p><strong>Description:</strong> " . htmlspecialchars($part['Description']) . "</p>";
+        //         echo "<p><strong>Quantity:</strong> " . htmlspecialchars($part['Quantity']) . "</p>";
+        //         echo "<p><strong>Price:</strong> $" . htmlspecialchars($part['Price']) . "</p>";
+
+        //         // Add the quantity selector here
+        //         echo "<div class='quantity-selector'>";
+        //         echo "<button class='quantity-btn minus' data-product-id='" . htmlspecialchars($part['id']) . "'>-</button>";
+        //         echo "<span class='quantity' id='quantity-" . htmlspecialchars($part['id']) . "' data-product-name='" . htmlspecialchars($part['Description']) . "'>0</span>"; // Ensure the data-product-name is set
+        //         echo "<button class='quantity-btn plus' data-product-id='" . htmlspecialchars($part['id']) . "'>+</button>";
+        //         echo "</div>";
+
+
+        //         echo "</div>";
+
+        //         echo "</div>";
+        //     } else {
+        //         echo "<p style='color: red; text-align: center;'>Sorry, the part is unavailable.</p>";
+        //     }
+
+        //     $searchQuery->close();
+        // }
+        ?>
 
         <?php
         if (isset($_POST['search_button'])) {
             $partNumber = mysqli_real_escape_string($conn, $_POST['search_part_number']);
 
             $searchQuery = $conn->prepare("SELECT * FROM carpartsdatabase WHERE Number = ?");
-            if ($searchQuery) {
-                $searchQuery->bind_param("s", $partNumber);
-                $searchQuery->execute();
-                $searchResult = $searchQuery->get_result();
+            $searchQuery->bind_param("s", $partNumber);
+            $searchQuery->execute();
+            $searchResult = $searchQuery->get_result();
 
-                if ($searchResult->num_rows > 0) {
-                    $part = $searchResult->fetch_assoc();
-                    echo "<div class='part-details'>";
+            if ($searchResult->num_rows > 0) {
+                $part = $searchResult->fetch_assoc();
+                echo "<div class='part-details'>";
 
-                    // Placeholder image; replace src with the path to the actual image if available
-                    echo "<img src='images/placeholder.png' alt='Part Image'>";
+                // Placeholder image; replace src with the path to the actual image if available
+                echo "<img src='images/placeholder.png' alt='Part Image'>";
 
-                    echo "<div class='part-info'>";
-                    echo "<h2>" . htmlspecialchars($part['Description']) . " " . htmlspecialchars($part['Number']) . "</h2>";
-                    echo "<p><strong>Model:</strong> " . htmlspecialchars($part['Model']) . "</p>";
-                    echo "<p><strong>Number:</strong> " . htmlspecialchars($part['Number']) . "</p>";
-                    echo "<p><strong>Description:</strong> " . htmlspecialchars($part['Description']) . "</p>";
-                    echo "<p><strong>Price:</strong> $" . htmlspecialchars($part['Price']) . "</p>";
+                echo "<div class='part-info'>";
+                echo "<h2>" . htmlspecialchars($part['Description']) . " " . htmlspecialchars($part['Number']) . "</h2>";
+                echo "<p><strong>Model:</strong> " . htmlspecialchars($part['Model']) . "</p>";
+                echo "<p><strong>Number:</strong> " . htmlspecialchars($part['Number']) . "</p>";
+                echo "<p><strong>Description:</strong> " . htmlspecialchars($part['Description']) . "</p>";
+                echo "<p><strong>Quantity:</strong> " . htmlspecialchars($part['Quantity']) . "</p>";
+                echo "<p><strong>Price:</strong> $" . htmlspecialchars($part['Price']) . "</p>";
 
-                    // Add form for increment/decrement buttons
-                    if (isset($_SESSION['user_id'])) {
-                        echo "<form method='POST' action='index.php'>";
-                        echo "<input type='hidden' name='product_id' value='" . htmlspecialchars($part['id']) . "'>";
-                        echo "<button type='submit' name='decrement' class='quantity-btn'>-</button>";
-                        echo "<input type='text' name='quantity' value='0' readonly>";
-                        echo "<button type='submit' name='increment' class='quantity-btn'>+</button>";
-                        echo "</form>";
-                    }
+       
 
-                    echo "</div>";
-                    echo "</div>";
-                } else {
-                    echo "<p style='color: red; text-align: center;'>Sorry, the part is unavailable.</p>";
-                }
-                $searchQuery->close();
+                echo "</div>";
+
+                echo "</div>";
             } else {
-                echo "<p style='color: red; text-align: center;'>Failed to prepare the search query.</p>";
+                echo "<p style='color: red; text-align: center;'>Sorry, the part is unavailable.</p>";
             }
+
+            $searchQuery->close();
         }
         ?>
 
         <!-- Other Sections -->
-        <section class="news">
+        <!-- <section class="news">
             <br>
             <br>
 
@@ -363,7 +381,7 @@ if (isset($_SESSION['user_id'])) {
                 <iframe src="https://storage.googleapis.com/maps-solutions-pdmvemtnbt/locator-plus/wol5/locator-plus.html" width="100%" height="100%" style="border:0; height: 300px" loading="lazy">
                 </iframe>
             </div>
-        </section>
+        </section> -->
     </main>
 
     <footer>
@@ -439,46 +457,70 @@ if (isset($_SESSION['user_id'])) {
         </div>
     </div>
 
+
     <script>
-        function updateCart(productId, action) {
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "update_cart.php", true); // PHP endpoint to handle cart updates
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.quantity-btn').forEach(function(button) {
+                button.addEventListener('click', function() {
+                    const isPlus = this.classList.contains('plus');
+                    const productId = this.getAttribute('data-product-id');
+                    const quantityElement = document.getElementById('quantity-' + productId);
+                    let currentQuantity = parseInt(quantityElement.innerText);
 
-            // Send the product ID and action (increment or decrement)
-            xhr.send("product_id=" + productId + "&action=" + action);
+                    if (isPlus) {
+                        currentQuantity++;
+                        updateCart(productId, currentQuantity, 'add');
+                        showPopup(`Added ${currentQuantity} ${quantityElement.getAttribute('data-product-name')} to cart`);
+                    } else {
+                        if (currentQuantity > 0) {
+                            currentQuantity--;
+                            updateCart(productId, currentQuantity, 'remove');
+                            showPopup(`Removed ${quantityElement.getAttribute('data-product-name')} from cart`);
+                        }
+                    }
 
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    // Parse the JSON response
-                    const response = JSON.parse(xhr.responseText);
+                    quantityElement.innerText = currentQuantity;
+                });
+            });
 
-                    // Update the cart count on the page
-                    document.querySelector('.cart p').innerText = 'Cart ' + (response.cart_count > 0 ? response.cart_count : '');
+            function updateCart(productId, quantity, action) {
+                fetch('functions/update_cart.php', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            product_id: productId,
+                            quantity: quantity,
+                            action: action
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            console.log('Cart updated successfully');
+                        } else {
+                            console.error('Failed to update cart');
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+            }
 
-                    // Show popup message
-                    showPopup(response.message);
-                } else {
-                    console.error("Error updating cart:", xhr.statusText);
-                }
-            };
-        }
+            function showPopup(message) {
+                const popup = document.createElement('div');
+                popup.className = 'popup-message';
+                popup.innerText = message;
+                document.body.appendChild(popup);
 
-        function showPopup(message) {
-            const popup = document.createElement('div');
-            popup.className = 'popup-message';
-            popup.innerText = message;
-            document.body.appendChild(popup);
+                setTimeout(() => {
+                    popup.classList.add('fade-out');
+                }, 2000);
 
-            setTimeout(() => {
-                popup.style.opacity = '0';
-            }, 2000);
-
-            setTimeout(() => {
-                document.body.removeChild(popup);
-            }, 3000);
-        }
-    </script>";
+                setTimeout(() => {
+                    popup.remove();
+                }, 3000);
+            }
+        });
     </script>
 
     <script src="script.js"></script>
@@ -486,3 +528,79 @@ if (isset($_SESSION['user_id'])) {
 </body>
 
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  <?php
+        // if (isset($_POST['search_button'])) {
+        //     $partNumber = mysqli_real_escape_string($conn, $_POST['search_part_number']);
+
+        //     $searchQuery = $conn->prepare("SELECT * FROM carpartsdatabase WHERE Number = ?");
+        //     $searchQuery->bind_param("s", $partNumber);
+        //     $searchQuery->execute();
+        //     $searchResult = $searchQuery->get_result();
+
+        //     if ($searchResult->num_rows > 0) {
+        //         $part = $searchResult->fetch_assoc();
+        //         echo "<div class='part-details'>";
+
+        //         // Placeholder image; replace src with the path to the actual image if available
+        //         echo "<img src='images/no-photo.png' alt='Part Image'>";
+
+        //         echo "<div class='part-info'>";
+        //         echo "<h2>" . htmlspecialchars($part['Description']) . " " . htmlspecialchars($part['Number']) . "</h2>";
+        //         echo "<p><strong>Model:</strong> " . htmlspecialchars($part['Model']) . "</p>";
+        //         echo "<p><strong>Number:</strong> " . htmlspecialchars($part['Number']) . "</p>";
+        //         echo "<p><strong>Description:</strong> " . htmlspecialchars($part['Description']) . "</p>";
+        //         echo "<p><strong>Quantity:</strong> " . htmlspecialchars($part['Quantity']) . "</p>";
+        //         echo "<p><strong>Price:</strong> $" . htmlspecialchars($part['Price']) . "</p>";
+
+        //         // Add the quantity selector here
+        //         echo "<div class='quantity-selector'>";
+        //         echo "<button class='quantity-btn minus' data-product-id='" . htmlspecialchars($part['id']) . "'>-</button>";
+        //         echo "<span class='quantity' id='quantity-" . htmlspecialchars($part['id']) . "' data-product-name='" . htmlspecialchars($part['Description']) . "'>0</span>"; // Ensure the data-product-name is set
+        //         echo "<button class='quantity-btn plus' data-product-id='" . htmlspecialchars($part['id']) . "'>+</button>";
+        //         echo "</div>";
+
+
+        //         echo "</div>";
+
+        //         echo "</div>";
+        //     } else {
+        //         echo "<p style='color: red; text-align: center;'>Sorry, the part is unavailable.</p>";
+        //     }
+
+        //     $searchQuery->close();
+        // }
+        ?>

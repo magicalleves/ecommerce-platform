@@ -15,8 +15,8 @@ $user_id = $_SESSION['user_id'];
 
 // Add product to cart
 if (isset($_POST['add_to_cart'])) {
-    $product_id = $_POST['product_id'];
-    $quantity = $_POST['quantity'];
+    $product_id = intval($_POST['product_id']);
+    $quantity = intval($_POST['quantity']);
 
     // Check if product is already in the cart
     $checkCart = $conn->prepare("SELECT * FROM cart WHERE user_id = ? AND product_id = ?");
@@ -48,7 +48,7 @@ if (isset($_POST['add_to_cart'])) {
 
 // Remove product from cart
 if (isset($_POST['remove'])) {
-    $cart_id = $_POST['cart_id'];
+    $cart_id = intval($_POST['cart_id']);
     $removeCart = $conn->prepare("DELETE FROM cart WHERE id = ?");
     if ($removeCart) {
         $removeCart->bind_param("i", $cart_id);
@@ -61,8 +61,8 @@ if (isset($_POST['remove'])) {
     exit();
 }
 
-// Fetch cart items
-$cartItems = $conn->prepare("SELECT cart.id as cart_id, products.*, cart.quantity FROM cart JOIN products ON cart.product_id = products.id WHERE cart.user_id = ?");
+// Fetch cart items - Correct the table name and use correct column names
+$cartItems = $conn->prepare("SELECT cart.id as cart_id, carpartsdatabase.Model, carpartsdatabase.Price, carpartsdatabase.Description, cart.quantity FROM cart JOIN carpartsdatabase ON cart.product_id = carpartsdatabase.id WHERE cart.user_id = ?");
 if ($cartItems) {
     $cartItems->bind_param("i", $user_id);
     $cartItems->execute();
@@ -92,20 +92,22 @@ include 'header.php';
             <thead>
                 <tr>
                     <th>Product</th>
+                    <th>Description</th>
                     <th>Quantity</th>
                     <th>Price</th>
                     <th>Action</th>
                 </tr>
             </thead>
             <tbody>
-                <?php while ($item = mysqli_fetch_assoc($cartResult)) : ?>
+                <?php while ($item = $cartResult->fetch_assoc()) : ?>
                     <tr>
-                        <td><?php echo htmlspecialchars($item['name']); ?></td>
+                        <td><?php echo htmlspecialchars($item['Model']); ?></td>
+                        <td><?php echo htmlspecialchars($item['Description']); ?></td>
                         <td><?php echo htmlspecialchars($item['quantity']); ?></td>
-                        <td>$<?php echo htmlspecialchars($item['price'] * $item['quantity']); ?></td>
+                        <td>$<?php echo htmlspecialchars($item['Price'] * $item['quantity']); ?></td>
                         <td>
                             <form method="POST" action="cart.php">
-                                <input type="hidden" name="cart_id" value="<?php echo $item['cart_id']; ?>">
+                                <input type="hidden" name="cart_id" value="<?php echo htmlspecialchars($item['cart_id']); ?>">
                                 <button type="submit" name="remove">Remove</button>
                             </form>
                         </td>

@@ -44,3 +44,8 @@ function showLogin() {
     document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
     document.getElementById('tab-email').classList.add('active');
 }
+
+
+
+
+// Message for addition or removal of products from cart
