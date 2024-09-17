@@ -5,8 +5,6 @@ error_reporting(E_ALL);
 session_start();
 include 'functions/db.php'; // Include the database connection
 
-
-
 // Initialize variables for error messages
 $loginErrorEmail = '';
 $loginErrorPhone = '';
@@ -134,59 +132,6 @@ if (isset($_SESSION['user_id'])) {
     $cart_count = $cart_data['cart_total'] ?? 0;
 }
 
-
-
-
-if (isset($_SESSION['user_id'])) {
-    $user_id = $_SESSION['user_id'];
-
-    if (isset($_POST['increment'])) {
-        $product_id = intval($_POST['product_id']);
-
-        // Check if the product exists in the carpartsdatabase table
-        $checkProductQuery = $conn->prepare("SELECT id FROM carpartsdatabase WHERE id = ?");
-        $checkProductQuery->bind_param("i", $product_id);
-        $checkProductQuery->execute();
-        $productResult = $checkProductQuery->get_result();
-
-        if ($productResult->num_rows > 0) {
-            // If the product exists, increment the quantity
-            $stmt = $conn->prepare("INSERT INTO cart (user_id, product_id, quantity, added_at) VALUES (?, ?, 1, NOW()) ON DUPLICATE KEY UPDATE quantity = quantity + 1");
-            $stmt->bind_param("ii", $user_id, $product_id);
-            $stmt->execute();
-            $stmt->close();
-
-            echo "<script>showPopup('Added 1 product to cart');</script>";
-        } else {
-            echo "<p style='color: red; text-align: center;'>Product does not exist.</p>";
-        }
-        $checkProductQuery->close();
-    }
-
-    if (isset($_POST['decrement'])) {
-        $product_id = intval($_POST['product_id']);
-
-        // Check if the product exists in the carpartsdatabase table
-        $checkProductQuery = $conn->prepare("SELECT id FROM carpartsdatabase WHERE id = ?");
-        $checkProductQuery->bind_param("i", $product_id);
-        $checkProductQuery->execute();
-        $productResult = $checkProductQuery->get_result();
-
-        if ($productResult->num_rows > 0) {
-            // If the product exists, decrement the quantity
-            $stmt = $conn->prepare("UPDATE cart SET quantity = quantity - 1 WHERE user_id = ? AND product_id = ? AND quantity > 0");
-            $stmt->bind_param("ii", $user_id, $product_id);
-            $stmt->execute();
-            $stmt->close();
-
-            echo "<script>showPopup('Removed 1 product from cart');</script>";
-        } else {
-            echo "<p style='color: red; text-align: center;'>Product does not exist.</p>";
-        }
-        $checkProductQuery->close();
-    }
-}
-
 ?>
 
 <!DOCTYPE html>
@@ -199,31 +144,7 @@ if (isset($_SESSION['user_id'])) {
     <link rel="stylesheet" href="styles.css">
     <link rel="icon" href="images/Logo.png" type="image/x-icon">
     <link rel="shortcut icon" href="images/Logo.png" type="image/x-icon">
-    <script>
-        // Ensure the modal stays open on error and opens the correct tab
-        window.onload = function() {
-            var loginErrorEmail = <?php echo json_encode(!empty($loginErrorEmail)); ?>;
-            var loginErrorPhone = <?php echo json_encode(!empty($loginErrorPhone)); ?>;
-
-            if (loginErrorEmail) {
-                document.getElementById('loginModal').style.display = 'block';
-                showContent('email'); // Open email tab if there's an error in email login
-            } else if (loginErrorPhone) {
-                document.getElementById('loginModal').style.display = 'block';
-                showContent('phone'); // Open phone tab if there's an error in phone login
-            }
-        };
-
-        function showContent(type) {
-            // Remove active class from all tabs and contents
-            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
-            document.querySelectorAll('.content').forEach(content => content.classList.remove('active'));
-
-            // Add active class to the selected tab and its content
-            document.getElementById(`tab-${type}`).classList.add('active');
-            document.getElementById(`content-${type}`).classList.add('active');
-        }
-    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- jQuery for AJAX -->
 </head>
 
 <body>
@@ -258,18 +179,16 @@ if (isset($_SESSION['user_id'])) {
                 </button>
             </form>
         </div>
+
         <a href="functions/cart.php" class="cart" style="display: flex; align-items: center; text-decoration: none; margin-left: 1vw">
             <i class="fa-solid fa-cart-shopping" style="font-size: 20px;color: #bababa; margin-left: 10px;"></i>
-            <p style="margin-left: 10px; color: #bababa">Cart
-                <?php if ($cart_count > 0) : ?>
-                    <?php echo $cart_count; ?>
-                <?php endif; ?>
+            <p id="cart-count" style="margin-left: 10px; color: #bababa">
+                Cart <span id="cart-item-count"><?php echo ($cart_count > 0) ? $cart_count : 0; ?></span>
             </p>
-
         </a>
+
+
     </div>
-
-
 
     <hr style="border-color: #f1f1f1;border: 1px solid #f1f1f1">
 
@@ -301,13 +220,26 @@ if (isset($_SESSION['user_id'])) {
 
                     // Add form for increment/decrement buttons
                     if (isset($_SESSION['user_id'])) {
-                        echo "<form method='POST' action='index.php'>";
-                        echo "<input type='hidden' name='product_id' value='" . htmlspecialchars($part['id']) . "'>";
-                        echo "<button type='submit' name='decrement' class='quantity-btn'>-</button>";
-                        echo "<input type='text' name='quantity' value='0' readonly>";
-                        echo "<button type='submit' name='increment' class='quantity-btn'>+</button>";
-                        echo "</form>";
+                        // Fetch the current quantity from the database
+                        $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+                        $stmt->bind_param("ii", $_SESSION['user_id'], $part['id']);
+                        $stmt->execute();
+                        $stmt->bind_result($current_quantity);
+                        $stmt->fetch();
+                        $stmt->close();
+
+                        // Set current quantity or default to 0 if not in cart
+                        $current_quantity = $current_quantity ?? 0;
+
+                        echo "<div class='quantity-control'>";
+                        echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"decrement\")'>-</button>";
+                        // Display the current quantity directly as text
+                        echo "<span class='quantity-display' id='quantity-" . htmlspecialchars($part['id']) . "'>" . $current_quantity . "</span>";
+                        echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"increment\")'>+</button>";
+                        echo "</div>";
                     }
+
+
 
                     echo "</div>";
                     echo "</div>";
@@ -441,27 +373,56 @@ if (isset($_SESSION['user_id'])) {
 
     <script>
         function updateCart(productId, action) {
-            const xhr = new XMLHttpRequest();
-            xhr.open("POST", "update_cart.php", true); // PHP endpoint to handle cart updates
-            xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            const quantityDisplay = $('#quantity-' + productId); // Get the current quantity display element
+            let currentQuantity = parseInt(quantityDisplay.text()); // Get current quantity as a number
 
-            // Send the product ID and action (increment or decrement)
-            xhr.send("product_id=" + productId + "&action=" + action);
+            // Update quantity locally based on the action
+            if (action === 'increment') {
+                currentQuantity += 1;
+            } else if (action === 'decrement' && currentQuantity > 0) { // Ensure quantity doesn't go below 0
+                currentQuantity -= 1;
+            }
 
-            xhr.onload = function() {
-                if (xhr.status === 200) {
-                    // Parse the JSON response
-                    const response = JSON.parse(xhr.responseText);
+            // Update the displayed quantity
+            quantityDisplay.text(currentQuantity);
 
-                    // Update the cart count on the page
-                    document.querySelector('.cart p').innerText = 'Cart ' + (response.cart_count > 0 ? response.cart_count : '');
+            // Send the AJAX request to update the quantity on the server
+            $.ajax({
+                url: 'functions/update_cart.php',
+                type: 'POST',
+                data: {
+                    product_id: productId,
+                    action: action
+                },
+                success: function(response) {
+                    console.log(response); // Debugging: log the response to the console
+                    try {
+                        const data = JSON.parse(response); // Attempt to parse JSON
+                        if (data.success) {
+                            // Update the displayed product quantity
+                            quantityDisplay.text(data.quantity);
 
-                    // Show popup message
-                    showPopup(response.message);
-                } else {
-                    console.error("Error updating cart:", xhr.statusText);
+                            // Update the cart count displayed in the header
+                            $('#cart-item-count').text(data.cart_count);
+
+                            // Show a confirmation popup
+                            showPopup(data.message);
+                        } else {
+                            showPopup(data.message);
+                            // If there was an error, revert the quantity display to the server's correct value
+                            quantityDisplay.text(data.quantity);
+                        }
+                    } catch (error) {
+                        console.error('Error parsing JSON:', error, response); // Show error in parsing
+                        showPopup('Error updating cart. Invalid server response.');
+                    }
+                },
+                error: function() {
+                    showPopup('Error updating cart.');
+                    // On error, revert the quantity display to its previous state
+                    quantityDisplay.text(currentQuantity);
                 }
-            };
+            });
         }
 
         function showPopup(message) {
@@ -478,8 +439,17 @@ if (isset($_SESSION['user_id'])) {
                 document.body.removeChild(popup);
             }, 3000);
         }
-    </script>";
+
+        // Ensure cart count is loaded correctly on page load
+        $(document).ready(function() {
+            $('#cart-item-count').text($('#cart-item-count').text());
+        });
     </script>
+
+
+
+
+
 
     <script src="script.js"></script>
     <script src="https://kit.fontawesome.com/6f6ccaa3be.js" crossorigin="anonymous"></script>
