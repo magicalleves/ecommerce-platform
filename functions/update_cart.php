@@ -34,7 +34,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt->fetch();
     $stmt->close();
 
-    if ($action === 'increment') {
+    // Fetch quantity (stock limit) from the product table
+    $stockStmt = $conn->prepare("SELECT Quantity FROM carpartsdatabase WHERE id = ?");
+    $stockStmt->bind_param("i", $productId);
+    $stockStmt->execute();
+    $stockResult = $stockStmt->get_result();
+    $stockData = $stockResult->fetch_assoc();
+    $stock = $stockData['Quantity'] ?? 0;
+    $stockStmt->close();
+
+    if ($action === 'increment' && $quantity < $stock) {
         if ($quantity > 0) {
             // If the item exists in the cart, increment the quantity
             $stmt = $conn->prepare("UPDATE cart SET quantity = quantity + 1 WHERE user_id = ? AND product_id = ?");

@@ -83,39 +83,49 @@ include 'header.php';
     <meta charset="UTF-8">
     <title>Shopping Cart</title>
     <link rel="stylesheet" href="../styles.css">
+    <link rel="icon" href="../images/Logo.png" type="image/x-icon">
+    <link rel="shortcut icon" href="../images/Logo.png" type="image/x-icon">
 </head>
 
 <body>
     <main>
-        <h1>Your Cart</h1>
-        <table>
-            <thead>
-                <tr>
-                    <th>Product</th>
-                    <th>Description</th>
-                    <th>Quantity</th>
-                    <th>Price</th>
-                    <th>Action</th>
-                </tr>
-            </thead>
-            <tbody>
-                <?php while ($item = $cartResult->fetch_assoc()) : ?>
-                    <tr>
-                        <td><?php echo htmlspecialchars($item['Model']); ?></td>
-                        <td><?php echo htmlspecialchars($item['Description']); ?></td>
-                        <td><?php echo htmlspecialchars($item['quantity']); ?></td>
-                        <td>$<?php echo htmlspecialchars($item['Price'] * $item['quantity']); ?></td>
-                        <td>
-                            <form method="POST" action="cart.php">
-                                <input type="hidden" name="cart_id" value="<?php echo htmlspecialchars($item['cart_id']); ?>">
-                                <button type="submit" name="remove">Remove</button>
-                            </form>
-                        </td>
-                    </tr>
-                <?php endwhile; ?>
-            </tbody>
-        </table>
-        <a href="checkout.php">Proceed to Checkout</a>
+        <div class="cart-container">
+            <div class="cart-items">
+                <h2>Your Cart</h2>
+                <?php if ($cartResult->num_rows > 0) : ?>
+                    <?php
+                    $total = 0;
+                    while ($item = $cartResult->fetch_assoc()) :
+                        $subtotal = $item['Price'] * $item['quantity'];
+                        $total += $subtotal;
+                    ?>
+                        <div class="cart-item">
+                            <div class="cart-item-details">
+                                <p><strong>Model:</strong> <?php echo htmlspecialchars($item['Model']); ?></p>
+                                <p><?php echo htmlspecialchars($item['Description']); ?></p>
+                                <p>Qty: <?php echo htmlspecialchars($item['quantity']); ?></p>
+                                <p>Price: $<?php echo htmlspecialchars($item['Price']); ?></p>
+                                <p>Subtotal: $<?php echo number_format($subtotal, 2); ?></p>
+                            </div>
+                            <div class="cart-item-actions">
+                                <form method="POST" action="cart.php">
+                                    <input type="hidden" name="cart_id" value="<?php echo htmlspecialchars($item['cart_id']); ?>">
+                                    <button type="submit" name="remove" class="remove-btn">Remove</button>
+                                </form>
+                            </div>
+                        </div>
+                    <?php endwhile; ?>
+                <?php else : ?>
+                    <p>Your cart is empty.</p>
+                <?php endif; ?>
+            </div>
+
+            <div class="cart-summary">
+                <h2>Summary</h2>
+                <p>Total (excluding delivery): $<?php echo number_format($total, 2); ?></p>
+                <a href="checkout.php" class="checkout-btn">Checkout securely</a>
+            </div>
+        </div>
     </main>
 </body>
 

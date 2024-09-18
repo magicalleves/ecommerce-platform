@@ -158,9 +158,14 @@ if (isset($_SESSION['user_id'])) {
             <img src="images/Logo.png" alt="Logo" class="logo" style="height: 50px; width: 50px;">
 
             <div class="nav-links">
-                <a href="#" class="nav-links-a">For New Clients</a>
-                <a href="#" class="nav-links-a">Order Conditions</a>
+                <?php if (isset($_SESSION['user_id'])) : ?>
+                    <a href="profile.php" class="nav-links-a">
+                        <i class="fa-solid fa-user" style="margin-right: 10px"></i> Profile
+                    </a>
+                <?php endif; ?>
+
                 <a href="#" class="nav-links-a">Delivery</a>
+                <!-- <a href="#" class="nav-links-a"><i class="fa-solid fa-user"></i></a> -->
                 <?php if (isset($_SESSION['user_id'])) : ?>
                     <a href="functions/logout.php" class="nav-links-a">Logout</a>
                 <?php else : ?>
@@ -182,10 +187,14 @@ if (isset($_SESSION['user_id'])) {
 
         <a href="functions/cart.php" class="cart" style="display: flex; align-items: center; text-decoration: none; margin-left: 1vw">
             <i class="fa-solid fa-cart-shopping" style="font-size: 20px;color: #bababa; margin-left: 10px;"></i>
-            <p id="cart-count" style="margin-left: 10px; color: #bababa">
-                Cart <span id="cart-item-count"><?php echo ($cart_count > 0) ? $cart_count : 0; ?></span>
+            <p id="cart-count" style="margin-left: 10px; color: #bababa; font-size: 19px">
+                Cart
+                <?php if ($cart_count > 0) : ?>
+                    <?php echo $cart_count; ?>
+                <?php endif; ?>
             </p>
         </a>
+
 
 
     </div>
@@ -198,53 +207,66 @@ if (isset($_SESSION['user_id'])) {
         if (isset($_POST['search_button'])) {
             $partNumber = mysqli_real_escape_string($conn, $_POST['search_part_number']);
 
-            $searchQuery = $conn->prepare("SELECT * FROM carpartsdatabase WHERE Number = ?");
+            // Modify the search query to use LIKE for partial matching
+            $searchQuery = $conn->prepare("SELECT * FROM carpartsdatabase WHERE Number LIKE ?");
             if ($searchQuery) {
-                $searchQuery->bind_param("s", $partNumber);
+                // Add wildcard characters to search for any occurrence of the input within the 'Number' field
+                $likePartNumber = '%' . $partNumber . '%';
+                $searchQuery->bind_param("s", $likePartNumber);
                 $searchQuery->execute();
                 $searchResult = $searchQuery->get_result();
 
+                // Check if any matching parts were found
                 if ($searchResult->num_rows > 0) {
-                    $part = $searchResult->fetch_assoc();
-                    echo "<div class='part-details'>";
+                    while ($part = $searchResult->fetch_assoc()) {
+                        // Display part details
+                        echo "<div class='part-details'>";
 
-                    // Placeholder image; replace src with the path to the actual image if available
-                    echo "<img src='images/placeholder.png' alt='Part Image'>";
+                        // Placeholder image; replace src with the path to the actual image if available
+                        echo "<img src='images/no-photo.png' alt='Part Image'>";
 
-                    echo "<div class='part-info'>";
-                    echo "<h2>" . htmlspecialchars($part['Description']) . " " . htmlspecialchars($part['Number']) . "</h2>";
-                    echo "<p><strong>Model:</strong> " . htmlspecialchars($part['Model']) . "</p>";
-                    echo "<p><strong>Number:</strong> " . htmlspecialchars($part['Number']) . "</p>";
-                    echo "<p><strong>Description:</strong> " . htmlspecialchars($part['Description']) . "</p>";
-                    echo "<p><strong>Price:</strong> $" . htmlspecialchars($part['Price']) . "</p>";
+                        // Display part information
+                        echo "<div class='part-info'>";
+                        echo "<h2>" . htmlspecialchars($part['Description']) . " " . "<u>" . htmlspecialchars($part['Number']) . "</u>" . "</h2>";
+                        echo "<p style='margin-left: 25px; margin-top: 15px'><strong>Model:</strong> " . htmlspecialchars($part['Model']) . "</p>";
+                        echo "<p style='margin-left: 25px'><strong>Number:</strong> " . htmlspecialchars($part['Number']) . "</p>";
+                        echo "<p style='margin-left: 25px'><strong>Description:</strong> " . htmlspecialchars($part['Description']) . "</p>";
+                        echo "<p style='margin-left: 25px'><strong>Price:</strong> $" . htmlspecialchars($part['Price']) . "</p>";
+                        echo "<p style='margin-left: 25px'><strong>Quantity:</strong> " . htmlspecialchars($part['Quantity']) . "</p>";
 
-                    // Add form for increment/decrement buttons
-                    if (isset($_SESSION['user_id'])) {
-                        // Fetch the current quantity from the database
-                        $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
-                        $stmt->bind_param("ii", $_SESSION['user_id'], $part['id']);
-                        $stmt->execute();
-                        $stmt->bind_result($current_quantity);
-                        $stmt->fetch();
-                        $stmt->close();
+                        if (!isset($_SESSION['user_id'])) {
+                            echo "<p style='margin-left: auto; margin-right: 15px;'><strong style='width: fit-content'>Login to add to cart</strong></p>";
+                        }
 
-                        // Set current quantity or default to 0 if not in cart
-                        $current_quantity = $current_quantity ?? 0;
+                        // If the user is logged in, display quantity controls
+                        if (isset($_SESSION['user_id'])) {
+                            // Fetch the current quantity from the database
+                            $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+                            $stmt->bind_param("ii", $_SESSION['user_id'], $part['id']);
+                            $stmt->execute();
+                            $stmt->bind_result($current_quantity);
+                            $stmt->fetch();
+                            $stmt->close();
 
-                        echo "<div class='quantity-control'>";
-                        echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"decrement\")'>-</button>";
-                        // Display the current quantity directly as text
-                        echo "<span class='quantity-display' id='quantity-" . htmlspecialchars($part['id']) . "'>" . $current_quantity . "</span>";
-                        echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"increment\")'>+</button>";
-                        echo "</div>";
+                            // Fetch quantity (stock) from the database
+                            $stock = $part['Quantity']; // Using the 'Quantity' column
+
+                            // Set current quantity or default to 0 if not in cart
+                            $current_quantity = $current_quantity ?? 0;
+
+                            // Display quantity controls for incrementing/decrementing item count
+                            echo "<div class='quantity-control'>";
+                            echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"decrement\", " . $stock . ")'>-</button>";
+                            echo "<span class='quantity-display' id='quantity-" . htmlspecialchars($part['id']) . "'>" . $current_quantity . "</span>";
+                            echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"increment\", " . $stock . ")'>+</button>";
+                            echo "</div>";
+                        }
+
+                        echo "</div>"; // Close part-info div
+                        echo "</div>"; // Close part-details div
                     }
-
-
-
-                    echo "</div>";
-                    echo "</div>";
                 } else {
-                    echo "<p style='color: red; text-align: center;'>Sorry, the part is unavailable.</p>";
+                    echo "<p style='color: red; text-align: center;'>Sorry, no parts match your search.</p>";
                 }
                 $searchQuery->close();
             } else {
@@ -252,6 +274,8 @@ if (isset($_SESSION['user_id'])) {
             }
         }
         ?>
+
+
 
         <!-- Other Sections -->
         <section class="news">
@@ -372,12 +396,12 @@ if (isset($_SESSION['user_id'])) {
     </div>
 
     <script>
-        function updateCart(productId, action) {
+        function updateCart(productId, action, stock) {
             const quantityDisplay = $('#quantity-' + productId); // Get the current quantity display element
             let currentQuantity = parseInt(quantityDisplay.text()); // Get current quantity as a number
 
             // Update quantity locally based on the action
-            if (action === 'increment') {
+            if (action === 'increment' && currentQuantity < stock) {
                 currentQuantity += 1;
             } else if (action === 'decrement' && currentQuantity > 0) { // Ensure quantity doesn't go below 0
                 currentQuantity -= 1;
@@ -385,6 +409,13 @@ if (isset($_SESSION['user_id'])) {
 
             // Update the displayed quantity
             quantityDisplay.text(currentQuantity);
+
+            // Disable increment button if stock limit is reached
+            if (currentQuantity >= stock) {
+                $(this).prop('disabled', true);
+            } else {
+                $(this).prop('disabled', false);
+            }
 
             // Send the AJAX request to update the quantity on the server
             $.ajax({
@@ -395,26 +426,20 @@ if (isset($_SESSION['user_id'])) {
                     action: action
                 },
                 success: function(response) {
-                    console.log(response); // Debugging: log the response to the console
-                    try {
-                        const data = JSON.parse(response); // Attempt to parse JSON
-                        if (data.success) {
-                            // Update the displayed product quantity
-                            quantityDisplay.text(data.quantity);
-
-                            // Update the cart count displayed in the header
-                            $('#cart-item-count').text(data.cart_count);
-
-                            // Show a confirmation popup
-                            showPopup(data.message);
+                    const data = JSON.parse(response);
+                    if (data.success) {
+                        // Update the cart count displayed in the cart link
+                        const cartCountElement = $('#cart-count');
+                        if (data.cart_count > 0) {
+                            cartCountElement.text('Cart ' + data.cart_count);
                         } else {
-                            showPopup(data.message);
-                            // If there was an error, revert the quantity display to the server's correct value
-                            quantityDisplay.text(data.quantity);
+                            cartCountElement.text('Cart'); // Hide the cart count when it's 0
                         }
-                    } catch (error) {
-                        console.error('Error parsing JSON:', error, response); // Show error in parsing
-                        showPopup('Error updating cart. Invalid server response.');
+                        showPopup(data.message);
+                    } else {
+                        showPopup(data.message);
+                        // If there was an error, revert the quantity display to the server's correct value
+                        quantityDisplay.text(data.quantity);
                     }
                 },
                 error: function() {

@@ -60,6 +60,626 @@ if ($orders) {
                 <?php endwhile; ?>
             </tbody>
         </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
+        <table>
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Total</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                </tr>
+            </thead>
+            <tbody>
+                <?php while ($order = $orderResult->fetch_assoc()) : ?>
+                    <tr>
+                        <td><?php echo htmlspecialchars($order['id']); ?></td>
+                        <td>$<?php echo htmlspecialchars($order['total']); ?></td>
+                        <td><?php echo htmlspecialchars($order['status']); ?></td>
+                        <td><?php echo htmlspecialchars($order['created_at']); ?></td>
+                    </tr>
+                <?php endwhile; ?>
+            </tbody>
+        </table>
     </main>
 
 </body>
