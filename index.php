@@ -159,7 +159,7 @@ if (isset($_SESSION['user_id'])) {
 
             <div class="nav-links">
                 <?php if (isset($_SESSION['user_id'])) : ?>
-                    <a href="profile.php" class="nav-links-a">
+                    <a href="functions/profile.php" class="nav-links-a">
                         <i class="fa-solid fa-user" style="margin-right: 10px"></i> Profile
                     </a>
                 <?php endif; ?>
@@ -207,72 +207,158 @@ if (isset($_SESSION['user_id'])) {
         if (isset($_POST['search_button'])) {
             $partNumber = mysqli_real_escape_string($conn, $_POST['search_part_number']);
 
-            // Modify the search query to use LIKE for partial matching
             $searchQuery = $conn->prepare("SELECT * FROM carpartsdatabase WHERE Number LIKE ?");
             if ($searchQuery) {
-                // Add wildcard characters to search for any occurrence of the input within the 'Number' field
                 $likePartNumber = '%' . $partNumber . '%';
                 $searchQuery->bind_param("s", $likePartNumber);
                 $searchQuery->execute();
                 $searchResult = $searchQuery->get_result();
 
-                // Check if any matching parts were found
-                if ($searchResult->num_rows > 0) {
-                    while ($part = $searchResult->fetch_assoc()) {
-                        // Display part details
-                        echo "<div class='part-details'>";
+                // Check if the user is logged in
+                $isLoggedIn = isset($_SESSION['user_id']);
 
-                        // Placeholder image; replace src with the path to the actual image if available
-                        echo "<img src='images/no-photo.png' alt='Part Image'>";
+                echo "<table style='width: 100%; border-collapse: collapse;'>";
+                echo "<thead style='background-color: #f5f5f5; color: #333;'>
+                <tr>
+                    <th style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>Model</th>
+                    <th style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>Number</th>
+                    <th style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>Description</th>
+                    <th style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>Quantity</th>
+                    <th style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>Price</th>";
 
-                        // Display part information
-                        echo "<div class='part-info'>";
-                        echo "<h2>" . htmlspecialchars($part['Description']) . " " . "<u>" . htmlspecialchars($part['Number']) . "</u>" . "</h2>";
-                        echo "<p style='margin-left: 25px; margin-top: 15px'><strong>Model:</strong> " . htmlspecialchars($part['Model']) . "</p>";
-                        echo "<p style='margin-left: 25px'><strong>Number:</strong> " . htmlspecialchars($part['Number']) . "</p>";
-                        echo "<p style='margin-left: 25px'><strong>Description:</strong> " . htmlspecialchars($part['Description']) . "</p>";
-                        echo "<p style='margin-left: 25px'><strong>Price:</strong> $" . htmlspecialchars($part['Price']) . "</p>";
-                        echo "<p style='margin-left: 25px'><strong>Quantity:</strong> " . htmlspecialchars($part['Quantity']) . "</p>";
-
-                        if (!isset($_SESSION['user_id'])) {
-                            echo "<p style='margin-left: auto; margin-right: 15px;'><strong style='width: fit-content'>Login to add to cart</strong></p>";
-                        }
-
-                        // If the user is logged in, display quantity controls
-                        if (isset($_SESSION['user_id'])) {
-                            // Fetch the current quantity from the database
-                            $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
-                            $stmt->bind_param("ii", $_SESSION['user_id'], $part['id']);
-                            $stmt->execute();
-                            $stmt->bind_result($current_quantity);
-                            $stmt->fetch();
-                            $stmt->close();
-
-                            // Fetch quantity (stock) from the database
-                            $stock = $part['Quantity']; // Using the 'Quantity' column
-
-                            // Set current quantity or default to 0 if not in cart
-                            $current_quantity = $current_quantity ?? 0;
-
-                            // Display quantity controls for incrementing/decrementing item count
-                            echo "<div class='quantity-control'>";
-                            echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"decrement\", " . $stock . ")'>-</button>";
-                            echo "<span class='quantity-display' id='quantity-" . htmlspecialchars($part['id']) . "'>" . $current_quantity . "</span>";
-                            echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"increment\", " . $stock . ")'>+</button>";
-                            echo "</div>";
-                        }
-
-                        echo "</div>"; // Close part-info div
-                        echo "</div>"; // Close part-details div
-                    }
-                } else {
-                    echo "<p style='color: red; text-align: center;'>Sorry, no parts match your search.</p>";
+                // Only show the "Add/Remove Item" column if the user is logged in
+                if ($isLoggedIn) {
+                    echo "<th style='padding: 10px; border-bottom: 1px solid #ddd;'>Add/Remove Item</th>";
                 }
-                $searchQuery->close();
+
+                echo "</tr>
+              </thead>";
+                echo "<tbody>";
+
+                while ($part = $searchResult->fetch_assoc()) {
+                    $stock = $part['Quantity'];
+                    $productId = $part['id'];
+
+                    // Fetch the current quantity in the user's cart, default to 0 if not found
+                    $currentQuantity = 0;
+                    if ($isLoggedIn) {
+                        $userId = $_SESSION['user_id'];
+                        $cartQuery = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+                        $cartQuery->bind_param("ii", $userId, $productId);
+                        $cartQuery->execute();
+                        $cartQuery->bind_result($cartQuantity);
+                        if ($cartQuery->fetch()) {
+                            $currentQuantity = $cartQuantity; // If cart entry found, use its value
+                        }
+                        $cartQuery->close();
+                    }
+
+                    echo "<tr style='background-color: #f9f9f9;'>
+                    <td style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>" . htmlspecialchars($part['Model']) . "</td>
+                    <td style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>" . htmlspecialchars($part['Number']) . "</td>
+                    <td style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>" . htmlspecialchars($part['Description']) . "</td>
+                    <td style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>" . htmlspecialchars($stock) . "</td>
+                    <td style='padding: 10px; border-bottom: 1px solid #ddd;text-align: left'>$" . htmlspecialchars($part['Price']) . "</td>";
+
+                    // Only show the add/remove buttons if the user is logged in
+                    if ($isLoggedIn) {
+                        echo "<td style='padding: 10px; border-bottom: 1px solid #ddd;'>
+                        <div class='quantity-control' style='display: flex; justify-content: space-between; align-items: center;'>
+
+                            <button class='quantity-btn' style='background-color: #ccc; border: none;' onclick='updateCart($productId, \"decrement\", $stock)'>-</button>
+
+                            <span id='quantity-$productId' style='padding: 0 0px;'>" . $currentQuantity . "</span>
+
+                            <button class='quantity-btn' style='background-color: #ccc; border: none;' onclick='updateCart($productId, \"increment\", $stock)'>+</button>
+                        </div>
+                      </td>";
+                    }
+
+                    echo "</tr>";
+                }
+                echo "</tbody>";
+                echo "</table>";
             } else {
                 echo "<p style='color: red; text-align: center;'>Failed to prepare the search query.</p>";
             }
         }
+        ?>
+
+
+
+
+
+
+        <?php
+        // if (isset($_POST['search_button'])) {
+        //     $partNumber = mysqli_real_escape_string($conn, $_POST['search_part_number']);
+
+        //     // Modify the search query to use LIKE for partial matching
+        //     $searchQuery = $conn->prepare("SELECT * FROM carpartsdatabase WHERE Number LIKE ?");
+        //     if ($searchQuery) {
+        //         // Add wildcard characters to search for any occurrence of the input within the 'Number' field
+        //         $likePartNumber = '%' . $partNumber . '%';
+        //         $searchQuery->bind_param("s", $likePartNumber);
+        //         $searchQuery->execute();
+        //         $searchResult = $searchQuery->get_result();
+
+        //         // Check if any matching parts were found
+        //         if ($searchResult->num_rows > 0) {
+        //             while ($part = $searchResult->fetch_assoc()) {
+        //                 // Display part details
+        //                 echo "<div class='part-details'>";
+
+        //                 // Placeholder image; replace src with the path to the actual image if available
+        //                 echo "<img src='images/no-photo.png' alt='Part Image'>";
+
+        //                 // Display part information
+        //                 echo "<div class='part-info'>";
+        //                 echo "<h2>" . htmlspecialchars($part['Description']) . " " . "<u>" . htmlspecialchars($part['Number']) . "</u>" . "</h2>";
+        //                 echo "<p style='margin-left: 25px; margin-top: 15px'><strong>Model:</strong> " . htmlspecialchars($part['Model']) . "</p>";
+        //                 echo "<p style='margin-left: 25px'><strong>Number:</strong> " . htmlspecialchars($part['Number']) . "</p>";
+        //                 echo "<p style='margin-left: 25px'><strong>Description:</strong> " . htmlspecialchars($part['Description']) . "</p>";
+        //                 echo "<p style='margin-left: 25px'><strong>Price:</strong> $" . htmlspecialchars($part['Price']) . "</p>";
+        //                 echo "<p style='margin-left: 25px'><strong>Quantity:</strong> " . htmlspecialchars($part['Quantity']) . "</p>";
+
+        //                 if (!isset($_SESSION['user_id'])) {
+        //                     echo "<p style='margin-left: auto; margin-right: 15px;'><strong style='width: fit-content'>Login to add to cart</strong></p>";
+        //                 }
+
+        //                 // If the user is logged in, display quantity controls
+        //                 if (isset($_SESSION['user_id'])) {
+        //                     // Fetch the current quantity from the database
+        //                     $stmt = $conn->prepare("SELECT quantity FROM cart WHERE user_id = ? AND product_id = ?");
+        //                     $stmt->bind_param("ii", $_SESSION['user_id'], $part['id']);
+        //                     $stmt->execute();
+        //                     $stmt->bind_result($current_quantity);
+        //                     $stmt->fetch();
+        //                     $stmt->close();
+
+        //                     // Fetch quantity (stock) from the database
+        //                     $stock = $part['Quantity']; // Using the 'Quantity' column
+
+        //                     // Set current quantity or default to 0 if not in cart
+        //                     $current_quantity = $current_quantity ?? 0;
+
+        //                     // Display quantity controls for incrementing/decrementing item count
+        //                     echo "<div class='quantity-control'>";
+        //                     echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"decrement\", " . $stock . ")'>-</button>";
+        //                     echo "<span class='quantity-display' id='quantity-" . htmlspecialchars($part['id']) . "'>" . $current_quantity . "</span>";
+        //                     echo "<button class='quantity-btn' onclick='updateCart(" . htmlspecialchars($part['id']) . ", \"increment\", " . $stock . ")'>+</button>";
+        //                     echo "</div>";
+        //                 }
+
+        //                 echo "</div>"; // Close part-info div
+        //                 echo "</div>"; // Close part-details div
+        //             }
+        //         } else {
+        //             echo "<p style='color: red; text-align: center;'>Sorry, no parts match your search.</p>";
+        //         }
+        //         $searchQuery->close();
+        //     } else {
+        //         echo "<p style='color: red; text-align: center;'>Failed to prepare the search query.</p>";
+        //     }
+        // }
         ?>
 
 
