@@ -35,16 +35,8 @@ This is a simple e-commerce website for selling car parts, specifically focused 
 1. Clone the repository to your local machine:
 
    ```bash
-   git clone https://github.com/your-username/mercedes-ecommerce.git
+   git clone https://github.com/magicalleves/ecommerce-platform.git
    ```
-
-2. Navigate to the project directory:
-
-   ```bash
-   cd mercedes-ecommerce
-   ```
-
-3. Open the `index.html` file in your preferred web browser to view the website.
 
 ## Usage
 
@@ -61,7 +53,7 @@ To preview the website locally, open `index.html` in your web browser. The site 
 ## Folder Structure
 
 ```plaintext
-mercedes-ecommerce/
+ecommerce-platform/
 │
 ├── index.html          # The main HTML file
 ├── styles.css          # The main CSS file for styling the website
