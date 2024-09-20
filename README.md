@@ -24,6 +24,9 @@ This is a simple e-commerce website for selling car parts, specifically focused 
 
 - **HTML5**
 - **CSS3**
+- **PHP**
+- **MySQLi**
+
 - **Font Awesome**: For icons used throughout the site.
 - **Google Fonts**: Uses the "Work Sans" font for a modern and clean look.
 
