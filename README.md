@@ -1,6 +1,6 @@
 # Car parts template - E-commerce Website
 
-This is a simple e-commerce website for selling car parts, specifically focused on Mercedes parts. The website has a clean and modern layout with a responsive navigation bar, search functionality, and an organized footer section.
+This is a simple e-commerce website for selling car parts, specifically focused on car parts. The website has a clean and modern layout with a responsive navigation bar, search functionality, and an organized footer section.
 
 ## Table of Contents
 
