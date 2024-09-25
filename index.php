@@ -472,9 +472,17 @@ if (isset($_SESSION['user_id'])) {
                 <form method="POST" action="index.php">
                     <input type="email" class="input-field" placeholder="Enter your email" name="reg_email" required>
                     <input type="text" class="input-field" placeholder="Enter your phone number" name="phone" required>
+
+
+                    <input type="text" class="input-field" placeholder="Enter your first name" name="first_name" required>
+                    <input type="text" class="input-field" placeholder="Enter your last name" name="last_name" required>
+
+
                     <input type="password" class="input-field" placeholder="Enter your password" name="reg_password" required>
                     <input type="password" class="input-field" placeholder="Confirm your password" name="confirm_password" required>
+
                     <button type="submit" class="login-btn input-field" name="register">Register</button>
+
                     <p style="color: #0054ad; text-align: center; margin-top: 5%;">Already have an account? <u><span onclick="showLogin()">Login here</span></u></p>
                 </form>
             </div>
