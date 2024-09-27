@@ -45,6 +45,9 @@ $recent_orders_result = $conn->query($recent_orders_query);
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
     <title>Admin Dashboard</title>
     <style>
         * {
@@ -52,7 +55,10 @@ $recent_orders_result = $conn->query($recent_orders_query);
         }
 
         body {
-            font-family: Arial, sans-serif;
+            font-family: "Rubik", sans-serif;
+            font-optical-sizing: auto;
+            font-weight: 300;
+            font-style: normal;
             margin: 0;
             padding: 0;
             background-color: #f9f9f9;
@@ -180,6 +186,7 @@ $recent_orders_result = $conn->query($recent_orders_query);
     <div class="container">
         <!-- Sidebar -->
         <div class="sidebar">
+            <img src="../images/download.webp" alt="Admin Logo" style="height: 100px">
             <h2>Admin Panel</h2>
             <ul>
                 <li><a href="#">Dashboard</a></li>
@@ -217,7 +224,6 @@ $recent_orders_result = $conn->query($recent_orders_query);
             <!-- Sales Graph -->
             <div class="graph-container">
                 <h3>Sale Graph</h3>
-                <!-- Implement chart here using Chart.js or any graph library -->
             </div>
 
             <?php

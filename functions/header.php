@@ -28,7 +28,7 @@ if (isset($_SESSION['user_id'])) {
 
     <nav style="background-color: #f5f5f5; display: flex; align-items: center; justify-content: space-between; padding: 10px 20px;">
         <a href="../index.php" class="nav-links-a" style="background-color: #f5f5f5;margin:0; padding: 0; height: 50px; width: 50px;">
-            <img src="../images/Logo.png" alt="Logo" class="logo" style="height: 50px; width: 50px;">
+            <img src="../images/download.webp" alt="Logo" class="logo" style="height: 70px; width: 70px;">
         </a>
 
         <div class="nav-links">
