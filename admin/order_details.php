@@ -215,7 +215,7 @@ if ($order_id > 0) {
                                 <td><?php echo $product['Model']; ?></td>
                                 <td>#<?php echo $product['order_id']; ?></td>
                                 <td><?php echo $product['quantity']; ?></td>
-                                <td>₹<?php echo number_format($product_total, 2); ?></td>
+                                <td>₼<?php echo number_format($product_total, 2); ?></td>
                             </tr>
                         <?php } ?>
                     </tbody>
@@ -224,9 +224,16 @@ if ($order_id > 0) {
 
             <!-- Order Total Summary -->
             <div class="total-summary">
-                <p>Subtotal: ₹<?php echo number_format($subtotal, 2); ?></p>
-                <p>Tax (20%): ₹<?php echo number_format($subtotal * 0.20, 2); ?></p>
-                <p><strong>Total: ₹<?php echo number_format($subtotal * 1.20, 2); ?></strong></p>
+                <p>Subtotal: ₼<?php echo number_format($subtotal, 2); ?></p>
+                <p>Tax (20%): ₼<?php echo number_format($subtotal * 0.20, 2); ?></p>
+                <p><strong>Total: ₼<?php echo number_format($subtotal * 1.20, 2); ?></strong></p>
+                <div>
+                    <form action="generate_pdf.php" method="post">
+                        <input type="hidden" name="order_id" value="<?php echo $order_id; ?>">
+                        <button type="submit">Download Receipt as PDF</button>
+                    </form>
+                </div>
+
             </div>
         </div>
     </div>

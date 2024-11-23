@@ -1,0 +1,17 @@
+<?php
+spl_autoload_register(function ($class) {
+    $prefix = 'PhpOffice\\PhpSpreadsheet\\';
+    $base_dir = __DIR__ . '/path_to_src/'; // Update this with the correct path to "src"
+
+    $len = strlen($prefix);
+    if (strncmp($prefix, $class, $len) !== 0) {
+        return;
+    }
+
+    $relative_class = substr($class, $len);
+    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+
+    if (file_exists($file)) {
+        require $file;
+    }
+});

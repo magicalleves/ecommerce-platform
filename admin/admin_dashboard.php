@@ -1,7 +1,6 @@
 <?php
 include '../functions/db.php';
 
-// Fetch data from database for the dashboard metrics
 $total_orders_query = "SELECT COUNT(*) as total_orders FROM orders";
 $total_orders_result = $conn->query($total_orders_query);
 $total_orders = $total_orders_result->fetch_assoc()['total_orders'];
@@ -18,7 +17,6 @@ $return_orders_query = "SELECT COUNT(*) as return_orders FROM orders WHERE statu
 $return_orders_result = $conn->query($return_orders_query);
 $return_orders = $return_orders_result->fetch_assoc()['return_orders'];
 
-// Fetch best sellers
 $best_sellers_query = "
     SELECT product_id, SUM(quantity) as total_sales 
     FROM order_items 
@@ -27,15 +25,34 @@ $best_sellers_query = "
     LIMIT 3";
 $best_sellers_result = $conn->query($best_sellers_query);
 
-// Fetch recent orders
+$sales_data_query = "
+    SELECT MONTHNAME(STR_TO_DATE(month_num, '%m')) AS month, IFNULL(SUM(o.total), 0) AS total_sales
+    FROM (
+        SELECT 1 AS month_num UNION SELECT 2 UNION SELECT 3 UNION SELECT 4
+        UNION SELECT 5 UNION SELECT 6 UNION SELECT 7 UNION SELECT 8
+        UNION SELECT 9 UNION SELECT 10 UNION SELECT 11 UNION SELECT 12
+    ) AS months
+    LEFT JOIN orders o ON MONTH(o.created_at) = months.month_num AND YEAR(o.created_at) = YEAR(CURRENT_DATE)
+    GROUP BY months.month_num
+    ORDER BY months.month_num";
+$sales_data_result = $conn->query($sales_data_query);
+
+$months = [];
+$sales = [];
+while ($row = $sales_data_result->fetch_assoc()) {
+    $months[] = $row['month'];
+    $sales[] = $row['total_sales'];
+}
+
 $recent_orders_query = "
-    SELECT o.id, o.total, o.status, o.created_at, u.email, oi.product_id, c.Model 
+    SELECT o.id, o.total, o.status, o.created_at, u.email, 
+        COALESCE(SUM(oi.quantity), 0) as total_quantity
     FROM orders o
-    JOIN users u ON o.user_id = u.id
-    JOIN order_items oi ON o.id = oi.order_id
-    JOIN carpartsdatabase c ON oi.product_id = c.id
+    LEFT JOIN users u ON o.user_id = u.id
+    LEFT JOIN order_items oi ON o.id = oi.order_id
+    GROUP BY o.id, u.email, o.total, o.status, o.created_at
     ORDER BY o.created_at DESC
-    LIMIT 6";
+    ";
 $recent_orders_result = $conn->query($recent_orders_query);
 ?>
 
@@ -48,6 +65,7 @@ $recent_orders_result = $conn->query($recent_orders_query);
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.2.0/dist/chart.umd.js"></script>
     <title>Admin Dashboard</title>
     <style>
         * {
@@ -87,13 +105,31 @@ $recent_orders_result = $conn->query($recent_orders_query);
         }
 
         .sidebar ul li {
-            margin-bottom: 10px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
         }
 
         .sidebar ul li a {
             text-decoration: none;
+            font-size: 21px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            border-radius: 8px;
+            flex: 1;
             color: #333;
-            font-size: 16px;
+        }
+
+        .sidebar ul li a.active {
+            background-color: #003F62;
+            color: white;
+        }
+
+        .sidebar ul li a img {
+            margin-right: 10px;
+            height: 24px;
+            width: 24px;
         }
 
         .main-content {
@@ -184,24 +220,20 @@ $recent_orders_result = $conn->query($recent_orders_query);
 <body>
 
     <div class="container">
-        <!-- Sidebar -->
         <div class="sidebar">
-            <img src="../images/download.webp" alt="Admin Logo" style="height: 100px">
             <h2>Admin Panel</h2>
             <ul>
-                <li><a href="#">Dashboard</a></li>
-                <li><a href="#">All Products</a></li>
-                <li><a href="#">Order List</a></li>
+                <li><a href="admin_dashboard.php" class="active" data-icon="dashboard"><img src="../images/icons/dashboardW.svg" alt="Dashboard Icon">Dashboard</a></li>
+                <li><a href="products_page.php" data-icon="product"><img src="../images/icons/productB.svg" alt="Products Icon">All Products</a></li>
+                <li><a href="orders_list.php" data-icon="order"><img src="../images/icons/orderB.svg" alt="Orders Icon">Order List</a></li>
             </ul>
         </div>
 
-        <!-- Main Content -->
         <div class="main-content">
             <div class="dashboard-header">
                 <h1>Dashboard</h1>
             </div>
 
-            <!-- Stats -->
             <div class="stats-container">
                 <div class="stats-box">
                     <h3>Total Orders</h3>
@@ -221,25 +253,10 @@ $recent_orders_result = $conn->query($recent_orders_query);
                 </div>
             </div>
 
-            <!-- Sales Graph -->
             <div class="graph-container">
-                <h3>Sale Graph</h3>
+                <h3>Sales Graph</h3>
+                <canvas id="salesGraph"></canvas>
             </div>
-
-            <?php
-            // Updated query to fetch recent orders with total quantity of products
-            $recent_orders_query = "
-                SELECT o.id, o.total, o.status, o.created_at, u.email, 
-                    SUM(oi.quantity) as total_quantity
-                FROM orders o
-                JOIN users u ON o.user_id = u.id
-                JOIN order_items oi ON o.id = oi.order_id
-                GROUP BY o.id
-                ORDER BY o.created_at DESC
-                ";  // Fetch recent 6 unique orders
-
-            $recent_orders_result = $conn->query($recent_orders_query);
-            ?>
 
             <div class="orders-container">
                 <h3>Recent Orders</h3>
@@ -247,34 +264,76 @@ $recent_orders_result = $conn->query($recent_orders_query);
                     <thead>
                         <tr>
                             <th>Order ID</th>
-                            <th>Total Quantity</th> <!-- Show total quantity of products -->
+                            <th>Total Quantity</th>
                             <th>Date</th>
                             <th>Customer Name</th>
                             <th>Status</th>
                             <th>Amount</th>
-                            <th>Action</th> <!-- New column for view details -->
+                            <th>Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php while ($row = $recent_orders_result->fetch_assoc()) { ?>
                             <tr>
-                                <td>#<?php echo $row['id']; ?></td> <!-- Show Order ID -->
-                                <td><?php echo $row['total_quantity']; ?></td> <!-- Show total quantity -->
+                                <td>#<?php echo $row['id']; ?></td>
+                                <td><?php echo $row['total_quantity']; ?></td>
                                 <td><?php echo date("M j, Y", strtotime($row['created_at'])); ?></td>
                                 <td><?php echo $row['email']; ?></td>
                                 <td><?php echo ucfirst($row['status']); ?></td>
-                                <td>₼<?php echo number_format($row['total'], 2); ?></td> <!-- Changed currency to Azeri Manat (₼) -->
-                                <td><a href="order_details.php?order_id=<?php echo $row['id']; ?>">View Order Details</a></td> <!-- View Order Details link -->
+                                <td>₼<?php echo number_format($row['total'], 2); ?></td>
+                                <td><a href="order_details.php?order_id=<?php echo $row['id']; ?>">View Order Details</a></td>
                             </tr>
                         <?php } ?>
                     </tbody>
                 </table>
             </div>
-
-
-
         </div>
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const months = <?php echo json_encode($months); ?>;
+            const sales = <?php echo json_encode($sales); ?>;
+
+            const ctx = document.getElementById('salesGraph').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: months,
+                    datasets: [{
+                        label: 'Monthly Sales',
+                        data: sales,
+                        borderColor: '#003F62',
+                        backgroundColor: 'rgba(0, 63, 98, 0.2)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Months'
+                            }
+                        },
+                        y: {
+                            title: {
+                                display: true,
+                                text: 'Sales (₼)'
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 
 </body>
 
